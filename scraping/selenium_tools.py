@@ -2,6 +2,7 @@
 from selenium import webdriver
 import json
 import time
+from bs4 import BeautifulSoup
 
 def salonemilano():
     driver = webdriver.Firefox()
@@ -29,12 +30,38 @@ def salonemilano():
     with open("salonemilano.txt", "w") as fout:
         fout.write(json.dumps(res))
 
+def taipeiampa():
+    for p in range(1, 2):
+        url = "http://www.taipeiampa.com.tw/en_US/exh/show/area/list.html?currentPage=%i&pageSize=70&orderType=desc&showArea=" % p
+        driver = webdriver.Firefox()
+        driver.get(url)
+        for il in range(2, 3):
+            xpath = "/html/body/div[3]/div[6]/div[2]/div[2]/table[2]/tbody/tr[%i]/td[2]/table/tbody/tr/td[2]/a" % il
+            el = driver.find_element_by_xpath(xpath)
+            el.click()
+            print driver.window_handles
+            driver.switch_to.window(driver.window_handles[1])
+            print driver.current_url
+            elc = driver.find_element_by_xpath('//table[@class="cdttb_b"][1]')
+            #print elc.get_attribute('innerHTML')
+            soup = BeautifulSoup(elc.get_attribute('innerHTML'))
+            for tr in soup.find_all('tr'):
+                divs = tr.find_all('div')
+                if len(divs) > 0:
+                    if divs[0].string == "Sales Contact":
+                        amails = tr.find_all('a')
+                        if len(amails) == 1:
+                            print amails[0].get('href')
+            driver.close()
+            driver.switch_to.window(driver.window_handles[0])
+        driver.close()
+
 def automechanika():
     
     res = []
     for p in range(1, 159): 
         urlsStr = "http://automechanika-istanbul.tr.messefrankfurt.com/content/automechanikaistanbul/istanbul/en/besucher/ausstellersuche/exhibitor-product-brand-search.html?aranan=&secenek=1&page=%i#choose" % p
-        print urlsStr
+        print p
         driver = webdriver.Firefox()
         driver.get(urlsStr)
         pagerows = [urlsStr]
@@ -43,7 +70,6 @@ def automechanika():
                 pagerows.append(str(e.text))
         driver.close()
         res.append(pagerows)
-    print res
     with open("automechanika.json", "w") as fout:
         fout.write(json.dumps(res))
 
@@ -66,7 +92,8 @@ def automechanikaFormater():
 
 if __name__ == '__main__':
     #automechanika()
-    automechanikaFormater()
+    #automechanikaFormater()
+    taipeiampa()
 
 
 

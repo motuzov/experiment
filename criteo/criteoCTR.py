@@ -273,7 +273,6 @@ def clacErr(xTrain, yTrain, xTest, yTest, model):
     errors = 0
     #tprob = [(exp(lpob[0]), exp(lpob[1])) for lpob in model.predict_log_proba(xTest)]
     err1 = 0
-    print xTest
     for predict, y in zip (model.predict(xTest), yTest):
         err = predict - y
         if err != 0:
